@@ -10,6 +10,7 @@ import {
 } from "$lib/server/websearch/sentenceSimilarity";
 import type { Conversation } from "$lib/types/Conversation";
 import type { MessageUpdate } from "$lib/types/MessageUpdate";
+import { webSearchParameters } from "$lib/stores/webSearchParameters";
 
 const MAX_N_PAGES_SCRAPE = 10 as const;
 const MAX_N_PAGES_EMBED = 5 as const;
@@ -26,6 +27,7 @@ export async function runWebSearch(
 	const webSearch: WebSearch = {
 		prompt: prompt,
 		searchQuery: "",
+		domainFilters: [],
 		results: [],
 		context: "",
 		contextSources: [],
@@ -33,12 +35,46 @@ export async function runWebSearch(
 		updatedAt: new Date(),
 	};
 
+// The part that's not working
+//     let filters: string = "";
+//     webSearchParameters.subscribe(($webSearchParameters) => {filters = $webSearchParameters.domainFilters});
+
+// temporary variable for testing
+    let filters: string = "hf.co, github.com";
+
+    function extractDomains(domainFilters: string): string[] {
+        const parts = domainFilters.split(/[ ,]+/);
+        const domains: string[] = [];
+        const domainPattern = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        for (const part of parts) {
+            if (domainPattern.test(part)) {
+                domains.push(part);
+            }
+        }
+
+        return domains;
+    }
+
+    webSearch.domainFilters = extractDomains(filters);
+
+	function formatSearchQuery(domainFilters: string[]): string {
+      if (domainFilters.length === 0) {
+        return "";
+      }
+
+      const filteredQueryPrefix = domainFilters.map((domain) => `site:${domain}`).join(" OR ") + " ";
+
+      return filteredQueryPrefix;
+    }
+
 	function appendUpdate(message: string, args?: string[], type?: "error" | "update") {
 		updatePad({ type: "webSearch", messageType: type ?? "update", message: message, args: args });
 	}
 
 	try {
 		webSearch.searchQuery = await generateQuery(messages);
+// 		limit the sources to certain sites
+		webSearch.searchQuery = formatSearchQuery(webSearch.domainFilters) + webSearch.searchQuery;
 		appendUpdate("Searching Google", [webSearch.searchQuery]);
 		const results = await searchWeb(webSearch.searchQuery);
 		webSearch.results =
