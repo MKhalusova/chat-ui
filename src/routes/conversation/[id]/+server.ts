@@ -85,6 +85,7 @@ export async function POST({ request, fetch, locals, params, getClientAddress })
 		id: messageId,
 		is_retry,
 		web_search: webSearch,
+		domainFilters: domainFilters,
 	} = z
 		.object({
 			inputs: z.string().trim().min(1),
@@ -92,6 +93,7 @@ export async function POST({ request, fetch, locals, params, getClientAddress })
 			response_id: z.optional(z.string().uuid()),
 			is_retry: z.optional(z.boolean()),
 			web_search: z.optional(z.boolean()),
+			domainFilters: z.optional(z.string()),
 		})
 		.parse(json);
 
@@ -139,7 +141,7 @@ export async function POST({ request, fetch, locals, params, getClientAddress })
 			let webSearchResults: WebSearch | undefined;
 
 			if (webSearch) {
-				webSearchResults = await runWebSearch(conv, newPrompt, update);
+				webSearchResults = await runWebSearch(conv, newPrompt, update, domainFilters);
 			}
 
 			// we can now build the prompt using the messages

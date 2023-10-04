@@ -43,6 +43,7 @@
                 bind:value={domainFilters}
                 class="border rounded-md p-2"
                 placeholder="e.g. hf.co, github.com"
+                on:input={updateDomainFilters}
             />
         </div>
     {/if}

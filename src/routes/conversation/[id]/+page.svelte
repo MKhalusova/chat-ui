@@ -69,6 +69,7 @@
 					response_id: responseId,
 					is_retry: isRetry,
 					web_search: $webSearchParameters.useSearch,
+					domainFilters: $webSearchParameters.domainFilters,
 				}),
 			});
 

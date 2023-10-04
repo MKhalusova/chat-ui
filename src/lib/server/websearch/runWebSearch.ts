@@ -18,7 +18,8 @@ const MAX_N_PAGES_EMBED = 5 as const;
 export async function runWebSearch(
 	conv: Conversation,
 	prompt: string,
-	updatePad: (upd: MessageUpdate) => void
+	updatePad: (upd: MessageUpdate) => void,
+	domainFiltersStr: string
 ) {
 	const messages = (() => {
 		return [...conv.messages, { content: prompt, from: "user", id: crypto.randomUUID() }];
@@ -35,15 +36,9 @@ export async function runWebSearch(
 		updatedAt: new Date(),
 	};
 
-// The part that's not working
-//     let filters: string = "";
-//     webSearchParameters.subscribe(($webSearchParameters) => {filters = $webSearchParameters.domainFilters});
 
-// temporary variable for testing
-    let filters: string = "hf.co, github.com";
-
-    function extractDomains(domainFilters: string): string[] {
-        const parts = domainFilters.split(/[ ,]+/);
+    function extractDomains(domainFiltersStr: string): string[] {
+        const parts = domainFiltersStr.split(/[ ,]+/);
         const domains: string[] = [];
         const domainPattern = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         for (const part of parts) {
@@ -55,7 +50,7 @@ export async function runWebSearch(
         return domains;
     }
 
-    webSearch.domainFilters = extractDomains(filters);
+    webSearch.domainFilters = extractDomains(domainFiltersStr);
 
 	function formatSearchQuery(domainFilters: string[]): string {
       if (domainFilters.length === 0) {
