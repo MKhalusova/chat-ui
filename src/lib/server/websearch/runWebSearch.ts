@@ -10,7 +10,6 @@ import {
 } from "$lib/server/websearch/sentenceSimilarity";
 import type { Conversation } from "$lib/types/Conversation";
 import type { MessageUpdate } from "$lib/types/MessageUpdate";
-import { webSearchParameters } from "$lib/stores/webSearchParameters";
 
 const MAX_N_PAGES_SCRAPE = 10 as const;
 const MAX_N_PAGES_EMBED = 5 as const;
@@ -69,6 +68,7 @@ export async function runWebSearch(
 	try {
 		webSearch.searchQuery = await generateQuery(messages);
 // 		limit the sources to certain sites
+		webSearch.searchQuery = webSearch.searchQuery.replace(/^"|"$/g, '');
 		webSearch.searchQuery = formatSearchQuery(webSearch.domainFilters) + webSearch.searchQuery;
 		appendUpdate("Searching Google", [webSearch.searchQuery]);
 		const results = await searchWeb(webSearch.searchQuery);

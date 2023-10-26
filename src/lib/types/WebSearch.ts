@@ -7,7 +7,7 @@ export interface WebSearch extends Timestamps {
 	convId?: Conversation["_id"];
 
 	prompt: string;
-
+	domainFilters: string[];
 	searchQuery: string;
 	results: WebSearchSource[];
 	context: string;
